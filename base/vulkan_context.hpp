@@ -19,6 +19,7 @@ namespace vk_sandbox {
         void init_vulkan();
         void destroy_vulkan();
         void create_swapchain(GLFWwindow* window, bool vsync);
+        VulkanRenderTarget create_render_target();
     private:
         vkb::Instance instance_builder{};
         VkInstance instance{};
@@ -39,6 +40,8 @@ namespace vk_sandbox {
         VkSwapchainKHR swapchain_khr{};
         std::vector<VkCommandBuffer> cmds;
         std::vector<VulkanImage> images;
+        VkRenderPass swapchain_renderpass;
+        std::vector<VkFramebuffer> swapchain_framebuffers;
 
         //sync
         size_t current_frame = 0;

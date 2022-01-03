@@ -132,6 +132,77 @@ namespace vk_sandbox {
         auto vkb_images = vkb_swapchain.get_images().value();
         auto vkb_image_views = vkb_swapchain.get_image_views().value();
 
+        images_in_flight.resize(vkb_images.size());
+        images.resize(vkb_images.size());
+
+        for (int i = 0; i < vkb_images.size(); ++i) {
+            images[i].image_format = vkb_swapchain.image_format;
+            images[i].image = vkb_images[i];
+            images[i].image_view = vkb_image_views[i];
+        }
+        cmds.resize(vkb_images.size());
+        VkCommandBufferAllocateInfo alloc_info{VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO};
+        alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        alloc_info.commandPool = command_pool;
+        alloc_info.commandBufferCount = cmds.size();
+        vkAllocateCommandBuffers(device, &alloc_info, cmds.data());
+
+        VkSemaphoreCreateInfo semaphore_info{VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
+        VkFenceCreateInfo fence_info{VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
+        fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+        image_available_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
+        render_finished_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
+        in_flight_fences.resize(MAX_FRAMES_IN_FLIGHT);
+
+        for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            vkCreateSemaphore(device, &semaphore_info, nullptr, &image_available_semaphores[i]);
+            vkCreateSemaphore(device, &semaphore_info, nullptr, &render_finished_semaphores[i]);
+            vkCreateFence(device, &fence_info, nullptr, &in_flight_fences[i]);
+        }
+
+        //render pass
+        VkAttachmentDescription attachment_description{};
+        VkAttachmentReference attachment_reference{};
+
+        attachment_description.format = images[0].image_format;
+        attachment_description.samples = VK_SAMPLE_COUNT_1_BIT;
+        attachment_description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        attachment_description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        attachment_description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        attachment_description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        attachment_description.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+        attachment_reference.attachment = 0;
+        attachment_reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        VkSubpassDescription sub_pass = {};
+        sub_pass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        sub_pass.colorAttachmentCount = 1;
+        sub_pass.pColorAttachments = &attachment_reference;
+
+        VkRenderPassCreateInfo render_pass_info = {VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO};
+        render_pass_info.attachmentCount = 1;
+        render_pass_info.pAttachments = &attachment_description;
+        render_pass_info.subpassCount = 1;
+        render_pass_info.pSubpasses = &sub_pass;
+
+        vkCreateRenderPass(device, &render_pass_info, nullptr, &swapchain_renderpass);
+        swapchain_framebuffers.resize(images.size());
+
+
+        for (int i = 0; i < images.size(); ++i) {
+            VkFramebufferCreateInfo fb_info = {VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO};
+            fb_info.renderPass = swapchain_renderpass;
+            fb_info.width = framebuffer_size.x;
+            fb_info.height = framebuffer_size.y;
+            fb_info.layers = 1;
+            fb_info.attachmentCount = 1;
+            fb_info.pAttachments = &images[i].image_view;
+            vkCreateFramebuffer(device, &fb_info, nullptr, &swapchain_framebuffers[i]);
+        }
+        spdlog::info("[VulkanContext] swapchain created successfully");
 
     }
 
@@ -145,5 +216,11 @@ namespace vk_sandbox {
         vkDestroyDevice(device, nullptr);
         vkb::destroy_debug_utils_messenger(instance, debug_messenger);
         vkDestroyInstance(this->instance, nullptr);
+    }
+
+    VulkanRenderTarget VulkanContext::create_render_target() {
+
+
+        return VulkanRenderTarget();
     }
 }
