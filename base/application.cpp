@@ -20,14 +20,16 @@ namespace vk_sandbox {
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
         spdlog::info("GLFW initialized successfully");
-        create_window();
         context.init_vulkan();
+        create_window();
         loop();
     }
 
     void Application::create_window() {
         window = glfwCreateWindow(800, 600, title.c_str(), NULL, NULL);
         glfwMaximizeWindow(window);
+        glfwWaitEvents();
+        context.create_swapchain(window, true);
     }
 
     void Application::loop() {
@@ -36,5 +38,9 @@ namespace vk_sandbox {
             glfwPollEvents();
         }
         glfwTerminate();
+    }
+
+    void Application::destroy() {
+        context.destroy_vulkan();
     }
 }

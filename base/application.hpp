@@ -17,6 +17,7 @@ namespace vk_sandbox {
         virtual void draw() = 0;
 
         void init();
+        void destroy();
     private:
         GLFWwindow *window;
         VulkanContext context;

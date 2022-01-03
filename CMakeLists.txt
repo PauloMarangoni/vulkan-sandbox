@@ -7,6 +7,7 @@ add_subdirectory(thirdparty/glfw)
 add_subdirectory(thirdparty/vulkan)
 add_subdirectory(thirdparty/volk)
 add_subdirectory(thirdparty/vk-bootstrap)
+add_subdirectory(thirdparty/glm)
 
 add_library(vulkan_sandbox_base
         base/application.cpp
@@ -16,6 +17,7 @@ add_library(vulkan_sandbox_base
 target_link_libraries(vulkan_sandbox_base PUBLIC glfw)
 target_link_libraries(vulkan_sandbox_base PUBLIC volk-lib)
 target_link_libraries(vulkan_sandbox_base PUBLIC vk-bootstrap)
+target_link_libraries(vulkan_sandbox_base PUBLIC glm::glm)
 
 target_include_directories(vulkan_sandbox_base PUBLIC thirdparty/spdlog)
 

@@ -15,5 +15,6 @@ public:
 int main() {
     SandboxApplication application("sandbox");
     application.init();
+    application.destroy();
     return 0;
 }
