@@ -34,8 +34,15 @@ namespace vk_sandbox {
 
     void Application::loop() {
         while (!glfwWindowShouldClose(window)) {
-            this->draw();
             glfwPollEvents();
+
+            glm::ivec2 framebuffer_size{};
+            glfwGetFramebufferSize(window, &framebuffer_size.x, &framebuffer_size.y);
+
+            if (context.begin_frame(framebuffer_size)) {
+                this->draw();
+                context.end_frame();
+            }
         }
         glfwTerminate();
     }

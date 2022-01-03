@@ -19,6 +19,9 @@ namespace vk_sandbox {
         void init_vulkan();
         void destroy_vulkan();
         void create_swapchain(GLFWwindow* window, bool vsync);
+        bool begin_frame(glm::ivec2 size);
+        void end_frame();
+
         VulkanRenderTarget create_render_target();
     private:
         vkb::Instance instance_builder{};
@@ -36,6 +39,7 @@ namespace vk_sandbox {
         VkDescriptorPool descriptor_pool{};
 
         //swap chain
+        uint32_t image_index{0};
         VkSurfaceKHR surface_khr{};
         VkSwapchainKHR swapchain_khr{};
         std::vector<VkCommandBuffer> cmds;
@@ -49,5 +53,8 @@ namespace vk_sandbox {
         std::vector<VkSemaphore> image_available_semaphores;
         std::vector<VkSemaphore> render_finished_semaphores;
         std::vector<VkFence> in_flight_fences;
+
+
+        void begin_render_pass(VkRenderPass render_pass, VkFramebuffer framebuffer, glm::ivec2 size);
     };
 }
