@@ -1,6 +1,19 @@
 #include <iostream>
 
+#include "base/application.hpp"
+
+
+class SandboxApplication : public vk_sandbox::Application  {
+public:
+    SandboxApplication(const std::string& title) : Application(title) {}
+    void draw() override {
+    }
+};
+
+
+
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    SandboxApplication application("sandbox");
+    application.init();
     return 0;
 }
